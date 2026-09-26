@@ -1,6 +1,7 @@
 package com.superesrmod.upscale.fsr;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.superesrmod.SuperESRMod;
 import com.superesrmod.config.ModConfig;
 import com.superesrmod.upscale.UpscaleProcessor;
@@ -40,13 +41,15 @@ public class FSRProcessor implements UpscaleProcessor {
         easuShader.setInputTexture("InputTexture", colorTexture);
         easuShader.setUniform("InputSize", renderWidth, renderHeight);
         easuShader.setUniform("OutputSize", screenWidth, screenHeight);
+        easuShader.setUniform("Sharpness", (float) ModConfig.SHARPNESS);
         easuShader.renderTo(intermediateTarget);
         easuShader.unbind();
 
-        if (ModConfig.ENABLE_SHARPNESS.get()) {
+        if (ModConfig.ENABLE_SHARPNESS) {
             rcasShader.bind();
             rcasShader.setInputTexture("InputTexture", intermediateTarget.colorTextureId);
             rcasShader.setUniform("OutputSize", screenWidth, screenHeight);
+            rcasShader.setUniform("Sharpness", (float) ModConfig.SHARPNESS);
             rcasShader.renderTo(outTarget);
             rcasShader.unbind();
         }

@@ -6,12 +6,6 @@ import com.superesrmod.config.ModConfig;
 import com.superesrmod.platform.PlatformHelper;
 import net.minecraft.client.Minecraft;
 
-/**
- * 帧生成管理器。支持：
- * - FRAME_BLEND: 简单 50/50 帧混合，全平台
- * - DYNAMIC_BLEND: 动态权重混合，全平台
- * - DLSS3_FG / FSR3_FG: 原生 SDK 时域插值（暂降级为动态混合）
- */
 public class FrameGenManager {
 
     private FrameGenType type = FrameGenType.OFF;
@@ -23,8 +17,7 @@ public class FrameGenManager {
 
     public void reload() {
         if (interpolator != null) { interpolator.destroy(); interpolator = null; }
-
-        var cfg = ModConfig.FRAME_GEN_TYPE.get();
+        var cfg = ModConfig.FRAME_GEN_TYPE;
         this.type = switch (cfg) {
             case OFF -> FrameGenType.OFF;
             case FRAME_BLEND -> FrameGenType.FRAME_BLEND;
@@ -33,13 +26,12 @@ public class FrameGenManager {
             case FSR3_FG -> FrameGenType.FSR3_FG;
         };
         this.active = type != FrameGenType.OFF;
-
         if (active) {
             interpolator = switch (type) {
                 case FRAME_BLEND -> new BlendInterpolator();
                 case DYNAMIC_BLEND -> new DynamicBlendInterpolator();
                 case DLSS3_FG, FSR3_FG -> {
-                    SuperESRMod.LOGGER.warn("[FrameGen] {} 原生 SDK 未就绪，降级为动态帧混合", type);
+                    SuperESRMod.LOGGER.warn("[FrameGen] {} native SDK not ready, fallback to dynamic blend", type);
                     yield new DynamicBlendInterpolator();
                 }
                 case OFF -> null;
@@ -60,7 +52,6 @@ public class FrameGenManager {
 
     public boolean isActive() { return active; }
     public FrameGenType getType() { return type; }
-
     public void destroy() {
         if (interpolator != null) { interpolator.destroy(); interpolator = null; }
     }

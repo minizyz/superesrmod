@@ -8,13 +8,13 @@ import com.superesrmod.upscale.dlss.DLSSProcessor;
 import com.superesrmod.upscale.fsr.FSRProcessor;
 import com.superesrmod.upscale.framegen.FrameGenManager;
 import net.minecraft.client.Minecraft;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.fml.event.config.ModConfigEvent;
 
 import java.util.EnumSet;
 import java.util.Set;
 
+/**
+ * 超分管理器 —— 单例。由 Mixin 在 GameRenderer.render() 前后调用。
+ */
 public class UpscaleManager {
 
     private static volatile UpscaleManager INSTANCE;
@@ -43,13 +43,11 @@ public class UpscaleManager {
     }
 
     public void reloadProcessor() {
-        UpscaleType desired = configToType(ModConfig.UPSCALE_TYPE.get());
+        UpscaleType desired = configToType(ModConfig.UPSCALE_TYPE);
         if (desired == UpscaleType.DLSS && !PlatformHelper.isDLSSAvailable()) desired = UpscaleType.FSR1;
         if (desired == UpscaleType.FSR2 && !PlatformHelper.isFSR2Available()) desired = UpscaleType.FSR1;
-
         if (activeProcessor != null && activeProcessor.getType() == desired) return;
         if (activeProcessor != null) { activeProcessor.destroy(); activeProcessor = null; }
-
         switch (desired) {
             case DLSS -> activeProcessor = new DLSSProcessor();
             case FSR1, FSR2 -> activeProcessor = new FSRProcessor(desired);
@@ -66,8 +64,8 @@ public class UpscaleManager {
     }
 
     private float resolveScale() {
-        float base = (float) ModConfig.INTERNAL_SCALE.get();
-        if (activeProcessor instanceof FSRProcessor) base = ModConfig.FSR_QUALITY_MODE.get().scale;
+        float base = (float) ModConfig.INTERNAL_SCALE;
+        if (activeProcessor instanceof FSRProcessor) base = ModConfig.FSR_QUALITY_MODE.scale;
         return Math.min(base, 1.0f);
     }
 
@@ -113,19 +111,4 @@ public class UpscaleManager {
     public FrameGenManager getFrameGenManager() { return frameGenManager; }
     public boolean isSodiumLoaded() { return sodiumLoaded; }
     public boolean isIrisLoaded() { return irisLoaded; }
-
-    @SubscribeEvent
-    public void onRenderFramePre(RenderFrameEvent.Pre event) {
-        onFrameRenderPre(Minecraft.getInstance().getMainRenderTarget());
-    }
-
-    @SubscribeEvent
-    public void onRenderFramePost(RenderFrameEvent.Post event) {
-        onFrameRenderPost(Minecraft.getInstance().getMainRenderTarget());
-    }
-
-    @SubscribeEvent
-    public void onConfigReload(ModConfigEvent.Reloading event) {
-        if (event.getConfig().getSpec() == ModConfig.SPEC) reloadProcessor();
-    }
 }

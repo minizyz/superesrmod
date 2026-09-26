@@ -1,11 +1,13 @@
 package com.superesrmod.platform;
 
-import com.superesrmod.SuperESRMod;
-import net.neoforged.fml.loading.LoadingModList;
+import net.fabricmc.loader.api.FabricLoader;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Locale;
 
+/**
+ * 平台/能力检测：OS, arch, GPU, mod presence.
+ */
 public final class PlatformHelper {
 
     private static Boolean windows, linux, android, arm64, dlssAvailable, fsr2Available;
@@ -17,7 +19,6 @@ public final class PlatformHelper {
         if (windows == null) windows = System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win");
         return windows;
     }
-
     public static boolean isLinux() {
         if (linux == null) {
             String os = System.getProperty("os.name").toLowerCase(Locale.ROOT);
@@ -25,7 +26,6 @@ public final class PlatformHelper {
         }
         return linux;
     }
-
     public static boolean isAndroid() {
         if (android == null) {
             android = System.getProperty("java.vendor", "").toLowerCase(Locale.ROOT).contains("android")
@@ -33,9 +33,7 @@ public final class PlatformHelper {
         }
         return android;
     }
-
     public static boolean is64Bit() { return System.getProperty("os.arch").contains("64"); }
-
     public static boolean isArm64() {
         if (arm64 == null) {
             String a = System.getProperty("os.arch").toLowerCase(Locale.ROOT);
@@ -43,13 +41,11 @@ public final class PlatformHelper {
         }
         return arm64;
     }
-
     public static String classifier() {
         String os = isAndroid() ? "android" : isWindows() ? "windows" : isLinux() ? "linux" : "unknown";
         String arch = isArm64() ? "arm64" : is64Bit() ? "x86_64" : "x86";
         return os + "-" + arch;
     }
-
     public static String getGpuVendor() {
         if (gpuVendor == null) {
             try { gpuVendor = GL11.glGetString(GL11.GL_VENDOR); }
@@ -58,30 +54,25 @@ public final class PlatformHelper {
         }
         return gpuVendor;
     }
-
     public static boolean isNvidia() { return getGpuVendor().toLowerCase(Locale.ROOT).contains("nvidia"); }
     public static boolean isAmd() { String v = getGpuVendor().toLowerCase(Locale.ROOT); return v.contains("amd") || v.contains("ati"); }
     public static boolean isIntel() { return getGpuVendor().toLowerCase(Locale.ROOT).contains("intel"); }
-
     public static boolean isDLSSAvailable() {
         if (dlssAvailable == null) dlssAvailable = isWindows() && isNvidia();
         return dlssAvailable;
     }
-
     public static boolean isFSR2Available() {
         if (fsr2Available == null) fsr2Available = true;
         return fsr2Available;
     }
-
     public static boolean isModLoaded(String modId) {
-        return LoadingModList.get().getModFileById(modId) != null;
+        return FabricLoader.getInstance().isModLoaded(modId);
     }
-
     public static String detectPlatformSummary() {
-        return String.format("OS=%s, arch=%s, GPU=%s, DLSS=%s, FSR2=%s, Sodium=%s, Iris=%s",
+        return String.format("OS=%s, arch=%s, GPU=%s, DLSS=%s, Sodium=%s, Iris=%s",
                 isWindows() ? "Windows" : isLinux() ? "Linux" : isAndroid() ? "Android" : "Other",
                 System.getProperty("os.arch"), getGpuVendor(),
-                isDLSSAvailable(), isFSR2Available(),
+                isDLSSAvailable(),
                 isModLoaded("embeddium") || isModLoaded("sodium"), isModLoaded("iris"));
     }
 }

@@ -2,42 +2,27 @@ package com.superesrmod.gui;
 
 import com.superesrmod.config.ModConfig;
 import com.superesrmod.upscale.UpscaleManager;
-import com.superesrmod.upscale.UpscaleType;
-import net.minecraft.client.OptionInstance;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 
-import java.util.List;
-
+/**
+ * 超分设置入口。后续通过 Cloth Config 或 Fabric 屏幕 API 实现完整 UI。
+ */
 public class UpscaleOptionsScreen {
 
-    public static Screen create(Screen parent) {
-        List<OptionInstance<?>> options = List.of(
-            new OptionInstance<>(
-                "superesrmod.options.upscale_type",
-                OptionInstance.noTooltip(),
-                (caption, value) -> Component.literal(value.displayName),
-                new OptionInstance.Enum<>(List.of(UpscaleType.OFF, UpscaleType.DLSS, UpscaleType.FSR1, UpscaleType.FSR2), null),
-                UpscaleManager.getInstance().getActiveType(),
-                (type) -> {
-                    ModConfig.UPSCALE_TYPE.set(configValue(type));
-                    UpscaleManager.getInstance().reloadProcessor();
-                }
-            )
-        );
-
-        return net.minecraft.client.gui.screens.options.OptionsSubScreen.subMenu(
-                parent,
-                Component.translatable("superesrmod.options.title"),
-                options);
+    public static void cycleUpscaleType() {
+        var current = ModConfig.UPSCALE_TYPE;
+        ModConfig.UPSCALE_TYPE = switch (current) {
+            case OFF -> ModConfig.UpscaleTypeConfig.FSR1;
+            case FSR1 -> ModConfig.UpscaleTypeConfig.DLSS;
+            case DLSS -> ModConfig.UpscaleTypeConfig.FSR2;
+            case FSR2 -> ModConfig.UpscaleTypeConfig.OFF;
+        };
+        UpscaleManager.getInstance().reloadProcessor();
     }
 
-    private static ModConfig.UpscaleTypeConfig configValue(UpscaleType t) {
-        return switch (t) {
-            case OFF -> ModConfig.UpscaleTypeConfig.OFF;
-            case DLSS -> ModConfig.UpscaleTypeConfig.DLSS;
-            case FSR1 -> ModConfig.UpscaleTypeConfig.FSR1;
-            case FSR2 -> ModConfig.UpscaleTypeConfig.FSR2;
-        };
+    public static void toggleFrameGen() {
+        ModConfig.FRAME_GEN_TYPE = (ModConfig.FRAME_GEN_TYPE == ModConfig.FrameGenTypeConfig.OFF)
+                ? ModConfig.FrameGenTypeConfig.DYNAMIC_BLEND
+                : ModConfig.FrameGenTypeConfig.OFF;
+        UpscaleManager.getInstance().getFrameGenManager().reload();
     }
 }

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "superesrmod",
+  "version": "${version}",
+  "name": "SuperESRMod",
+  "description": "NVIDIA DLSS and AMD FSR super-resolution with frame generation. Compatible with Sodium and Iris.",
+  "authors": ["SuperESRMod Team"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.superesrmod.SuperESRMod"
+    ]
+  },
+  "mixins": [
+    "superesrmod.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "embeddium": "*",
+    "iris": "*"
+  }
+}
