@@ -1,0 +1,10 @@
+{
+  "superesrmod.options.title": "SuperESRMod 设置",
+  "superesrmod.options.upscale_type": "超分辨率类型",
+  "superesrmod.options.internal_scale": "内部渲染缩放",
+  "superesrmod.options.internal_scale.tooltip": "游戏以更低分辨率渲染，再由超分技术放大到屏幕分辨率。越小性能越好。",
+  "superesrmod.options.sharpness": "锐化强度",
+  "superesrmod.options.frame_gen": "帧生成",
+  "superesrmod.options.frame_gen.tooltip": "在已渲染帧之间插入中间帧，等效提升帧率。需要较新的 GPU。",
+  "superesrmod.options.debug_overlay": "调试信息"
+}

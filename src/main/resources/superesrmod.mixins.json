@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "com.superesrmod.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8.5",
+  "client": [
+    "GameRendererMixin",
+    "LevelRendererMixin",
+    "SodiumCompatMixin",
+    "IrisCompatMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "superesrmod.refmap.json"
+}

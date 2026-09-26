@@ -1,0 +1,39 @@
+modLoader="javafml"
+loaderVersion="[26,)"
+license="MIT"
+
+[[mods]]
+modId="superesrmod"
+version="1.0.0"
+displayName="SuperESRMod"
+authors="SuperESRMod Team"
+description='''
+NVIDIA DLSS and AMD FSR super-resolution with frame generation for NeoForge.
+Compatible with Sodium and Iris.
+'''
+
+[[dependencies.superesrmod]]
+    modId="neoforge"
+    type="required"
+    versionRange="[26,)"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.superesrmod]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.26.1,)"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.superesrmod]]
+    modId="embeddium"
+    type="optional"
+    ordering="AFTER"
+    side="CLIENT"
+
+[[dependencies.superesrmod]]
+    modId="iris"
+    type="optional"
+    ordering="AFTER"
+    side="CLIENT"

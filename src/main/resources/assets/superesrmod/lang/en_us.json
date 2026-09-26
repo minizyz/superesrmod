@@ -1,0 +1,10 @@
+{
+  "superesrmod.options.title": "SuperESRMod Settings",
+  "superesrmod.options.upscale_type": "Upscaling Type",
+  "superesrmod.options.internal_scale": "Internal Render Scale",
+  "superesrmod.options.internal_scale.tooltip": "The game renders at a lower resolution then upscales to your display. Lower = faster.",
+  "superesrmod.options.sharpness": "Sharpness",
+  "superesrmod.options.frame_gen": "Frame Generation",
+  "superesrmod.options.frame_gen.tooltip": "Insert intermediate frames between rendered frames. Requires a recent GPU.",
+  "superesrmod.options.debug_overlay": "Debug Overlay"
+}

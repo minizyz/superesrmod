@@ -1,0 +1,65 @@
+plugins {
+    id 'net.neoforged.moddev' version '1.0.20'
+    id 'maven-publish'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    // NeoForge version for Minecraft 1.26.1
+    version = neo_version
+
+    // Official Mojang mappings
+    parchment {
+        mappingsVersion = parchment_mappings
+        minecraftVersion = parchment_mc
+    }
+
+    runs {
+        client {
+            workingDirectory = project.file('run')
+            property 'forge.enabledGameTestNamespaces', mod_id
+        }
+        server {
+            workingDirectory = project.file('run')
+            property 'forge.enabledGameTestNamespaces', mod_id
+        }
+    }
+
+    mods {
+        superesrmod {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+repositories {
+    maven {
+        name = "TerraformersMC"
+        url = "https://maven.terraformersmc.com/releases/"
+    }
+    maven {
+        name = "Cursemaven"
+        url = "https://cursemaven.com"
+    }
+    mavenCentral()
+}
+
+dependencies {
+    // Sodium API (compile-only, soft dependency)
+    compileOnly(implementation("net.caffeinemc:embeddium:0.3.31+mc1.26.1")) { transitive = false }
+
+    // Iris API (compile-only, soft dependency)
+    compileOnly(implementation("net.iris:iris:1.8.1+1.26.1")) { transitive = false }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
