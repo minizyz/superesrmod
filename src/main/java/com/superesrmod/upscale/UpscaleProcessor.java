@@ -1,12 +1,10 @@
 package com.superesrmod.upscale;
-
-import com.mojang.blaze3d.pipeline.RenderTarget;
-
+import com.superesrmod.gl.GLFramebuffer;
 public interface UpscaleProcessor {
     UpscaleType getType();
     void init(int screenWidth, int screenHeight, int renderWidth, int renderHeight);
-    RenderTarget prepare();
-    void postWorldRender(int colorTexture, int depthTexture, RenderTarget outTarget);
+    GLFramebuffer prepare();
+    void postWorldRender(GLFramebuffer lowRes, int outputFbo);
     int getRenderWidth();
     int getRenderHeight();
     void destroy();
