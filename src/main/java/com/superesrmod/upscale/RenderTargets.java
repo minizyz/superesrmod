@@ -1,41 +1,25 @@
 package com.superesrmod.upscale;
-
-import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.superesrmod.SuperESRMod;
-
+import com.superesrmod.gl.GLFramebuffer;
+import org.lwjgl.opengl.GL30;
 public class RenderTargets {
-
-    private RenderTarget lowResTarget;
+    private GLFramebuffer lowResTarget;
     private int renderWidth, renderHeight, screenWidth, screenHeight;
-
     public void rebuild(int screenWidth, int screenHeight, float scale) {
-        this.screenWidth = screenWidth;
-        this.screenHeight = screenHeight;
+        this.screenWidth = screenWidth; this.screenHeight = screenHeight;
         this.renderWidth = Math.max(1, Math.round(screenWidth * scale));
         this.renderHeight = Math.max(1, Math.round(screenHeight * scale));
         destroy();
-        lowResTarget = new RenderTarget(true, SuperESRMod.MOD_ID + "_lowres");
-        lowResTarget.createBuffers(renderWidth, renderHeight, true);
-        lowResTarget.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
-        SuperESRMod.LOGGER.info("[RenderTargets] {}x{} -> {}x{} (scale {})",
-                screenWidth, screenHeight, renderWidth, renderHeight, scale);
+        lowResTarget = new GLFramebuffer(renderWidth, renderHeight, true);
+        lowResTarget.clear(0, 0, 0, 0);
+        SuperESRMod.LOGGER.info("[RenderTargets] {}x{} -> {}x{}", screenWidth, screenHeight, renderWidth, renderHeight);
     }
-
-    public void bind() { if (lowResTarget != null) lowResTarget.bindWrite(true); }
-
-    public void unbind(RenderTarget mainTarget) {
-        if (lowResTarget != null) lowResTarget.unbindWrite();
-        if (mainTarget != null) mainTarget.bindWrite(true);
-    }
-
-    public RenderTarget getLowResTarget() { return lowResTarget; }
+    public int bind() { if (lowResTarget == null) return 0; int prev = GL30.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING); lowResTarget.bind(); return prev; }
+    public GLFramebuffer getLowResTarget() { return lowResTarget; }
     public int getRenderWidth() { return renderWidth; }
     public int getRenderHeight() { return renderHeight; }
     public int getScreenWidth() { return screenWidth; }
     public int getScreenHeight() { return screenHeight; }
     public boolean isDirty() { return lowResTarget == null; }
-
-    public void destroy() {
-        if (lowResTarget != null) { lowResTarget.destroyBuffers(); lowResTarget = null; }
-    }
+    public void destroy() { if (lowResTarget != null) { lowResTarget.destroy(); lowResTarget = null; } }
 }
