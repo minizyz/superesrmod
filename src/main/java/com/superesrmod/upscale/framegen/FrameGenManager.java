@@ -1,20 +1,14 @@
 package com.superesrmod.upscale.framegen;
-
-import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.superesrmod.SuperESRMod;
 import com.superesrmod.config.ModConfig;
 import com.superesrmod.platform.PlatformHelper;
 import net.minecraft.client.Minecraft;
-
 public class FrameGenManager {
-
     private FrameGenType type = FrameGenType.OFF;
     private FrameInterpolator interpolator;
     private long presentCount = 0;
     private boolean active = false;
-
     public void init() { reload(); }
-
     public void reload() {
         if (interpolator != null) { interpolator.destroy(); interpolator = null; }
         var cfg = ModConfig.FRAME_GEN_TYPE;
@@ -30,10 +24,7 @@ public class FrameGenManager {
             interpolator = switch (type) {
                 case FRAME_BLEND -> new BlendInterpolator();
                 case DYNAMIC_BLEND -> new DynamicBlendInterpolator();
-                case DLSS3_FG, FSR3_FG -> {
-                    SuperESRMod.LOGGER.warn("[FrameGen] {} native SDK not ready, fallback to dynamic blend", type);
-                    yield new DynamicBlendInterpolator();
-                }
+                case DLSS3_FG, FSR3_FG -> { SuperESRMod.LOGGER.warn("[FrameGen] {} SDK not ready, fallback", type); yield new DynamicBlendInterpolator(); }
                 case OFF -> null;
             };
             if (interpolator != null) {
@@ -41,18 +32,14 @@ public class FrameGenManager {
                 interpolator.init(mc.getWindow().getWidth(), mc.getWindow().getHeight());
             }
         }
-        SuperESRMod.LOGGER.info("[FrameGen] type={}, active={}", type, active);
+        SuperESRMod.LOGGER.info("[FrameGen] type={} active={}", type, active);
     }
-
-    public void apply(RenderTarget currentTarget) {
+    public void apply(int currentFbo) {
         if (!active || interpolator == null) return;
         presentCount++;
-        interpolator.interpolate(currentTarget, currentTarget, presentCount);
+        interpolator.interpolate(currentFbo, currentFbo, presentCount);
     }
-
     public boolean isActive() { return active; }
     public FrameGenType getType() { return type; }
-    public void destroy() {
-        if (interpolator != null) { interpolator.destroy(); interpolator = null; }
-    }
+    public void destroy() { if (interpolator != null) { interpolator.destroy(); interpolator = null; } }
 }
