@@ -27,6 +27,7 @@ public class UpscaleManager {
     private boolean lateInitialized = false;
     private boolean sodiumLoaded = false, irisLoaded = false;
     private int savedFbo = 0;
+    private boolean didBind = false;
     private UpscaleManager() {}
 
     public void lateInit() {
@@ -36,9 +37,6 @@ public class UpscaleManager {
         try {
             sodiumLoaded = PlatformHelper.isModLoaded("embeddium") || PlatformHelper.isModLoaded("sodium");
             irisLoaded = PlatformHelper.isModLoaded("iris");
-            if (sodiumLoaded || irisLoaded) {
-                SuperESRMod.LOGGER.info("[UpscaleManager] Sodium/Iris detected, FBO takeover disabled to prevent flicker");
-            }
             frameGenManager = new FrameGenManager();
             reloadProcessor();
             lateInitialized = true;
@@ -69,6 +67,8 @@ public class UpscaleManager {
                 int sw = mc.getWindow().getWidth(), sh = mc.getWindow().getHeight();
                 renderTargets.rebuild(sw, sh, scale);
                 activeProcessor.init(sw, sh, renderTargets.getRenderWidth(), renderTargets.getRenderHeight());
+            } else if (activeProcessor != null) {
+                SuperESRMod.LOGGER.info("[UpscaleManager] Sodium/Iris loaded, GL resources skipped");
             }
             SuperESRMod.LOGGER.info("[UpscaleManager] processor -> {}", desired);
         } catch (Throwable t) {
@@ -81,6 +81,7 @@ public class UpscaleManager {
     private UpscaleType configToType(ModConfig.UpscaleTypeConfig c) { return switch (c) { case OFF -> UpscaleType.OFF; case DLSS -> UpscaleType.DLSS; case FSR1 -> UpscaleType.FSR1; case FSR2 -> UpscaleType.FSR2; }; }
 
     public boolean onFrameRenderPre() {
+        didBind = false;
         if (!lateInitialized || activeProcessor == null) return false;
         if (sodiumLoaded || irisLoaded) return false;
         Minecraft mc = Minecraft.getInstance();
@@ -92,6 +93,7 @@ public class UpscaleManager {
                 activeProcessor.init(sw, sh, renderTargets.getRenderWidth(), renderTargets.getRenderHeight());
             }
             savedFbo = renderTargets.bind();
+            didBind = true;
             return true;
         } catch (Throwable t) { SuperESRMod.LOGGER.error("[UpscaleManager] pre failed: {}", t.toString()); return false; }
     }
@@ -99,6 +101,7 @@ public class UpscaleManager {
     public void onFrameRenderPost() {
         if (!lateInitialized || activeProcessor == null) return;
         if (sodiumLoaded || irisLoaded) return;
+        if (!didBind) return;
         try {
             GLFramebuffer lowRes = renderTargets.getLowResTarget();
             int[] vp = new int[4];
