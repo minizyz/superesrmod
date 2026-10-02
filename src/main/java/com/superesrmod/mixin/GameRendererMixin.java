@@ -9,14 +9,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
-    @Inject(method = "render", at = @At("HEAD"))
+    @Inject(method = "render", at = @At("HEAD"), require = 0)
     private void onRenderHead(CallbackInfo ci) {
-        UpscaleManager mgr = UpscaleManager.getInstance();
-        if (!mgr.isLateInitialized()) mgr.lateInit();
-        mgr.onFrameRenderPre();
+        try {
+            UpscaleManager mgr = UpscaleManager.getInstance();
+            if (!mgr.isLateInitialized()) mgr.lateInit();
+            mgr.onFrameRenderPre();
+        } catch (Throwable ignored) {}
     }
-    @Inject(method = "render", at = @At("RETURN"))
+    @Inject(method = "render", at = @At("RETURN"), require = 0)
     private void onRenderReturn(CallbackInfo ci) {
-        UpscaleManager.getInstance().onFrameRenderPost();
+        try { UpscaleManager.getInstance().onFrameRenderPost(); } catch (Throwable ignored) {}
     }
 }
