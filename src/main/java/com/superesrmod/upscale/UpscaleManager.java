@@ -8,6 +8,7 @@ import com.superesrmod.upscale.dlss.DLSSProcessor;
 import com.superesrmod.upscale.fsr.FSRProcessor;
 import com.superesrmod.upscale.framegen.FrameGenManager;
 import net.minecraft.client.Minecraft;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import java.util.EnumSet;
 import java.util.Set;
@@ -31,16 +32,19 @@ public class UpscaleManager {
     public void lateInit() {
         if (lateInitialized) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc == null || mc.getWindow() == null) { SuperESRMod.LOGGER.warn("[UpscaleManager] Window not ready, deferring lateInit"); return; }
+        if (mc == null || mc.getWindow() == null) return;
         try {
             sodiumLoaded = PlatformHelper.isModLoaded("embeddium") || PlatformHelper.isModLoaded("sodium");
             irisLoaded = PlatformHelper.isModLoaded("iris");
+            if (sodiumLoaded || irisLoaded) {
+                SuperESRMod.LOGGER.info("[UpscaleManager] Sodium/Iris detected, FBO takeover disabled to prevent flicker");
+            }
             frameGenManager = new FrameGenManager();
             reloadProcessor();
             lateInitialized = true;
             SuperESRMod.LOGGER.info("[UpscaleManager] lateInit done. Sodium={} Iris={}", sodiumLoaded, irisLoaded);
         } catch (Throwable t) {
-            SuperESRMod.LOGGER.error("[UpscaleManager] lateInit failed, upscale disabled: {}", t.toString());
+            SuperESRMod.LOGGER.error("[UpscaleManager] lateInit failed: {}", t.toString());
             activeProcessor = null;
         }
     }
@@ -48,10 +52,10 @@ public class UpscaleManager {
 
     public void reloadProcessor() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc == null || mc.getWindow() == null) { SuperESRMod.LOGGER.warn("[UpscaleManager] reloadProcessor skipped: window not ready"); return; }
+        if (mc == null || mc.getWindow() == null) return;
         try {
             UpscaleType desired = configToType(ModConfig.UPSCALE_TYPE);
-            if (desired == UpscaleType.DLSS && !PlatformHelper.isDLSSAvailable()) desired = UpscaleType.FSR1;
+            if (desired == UpscaleType.DLSS && !PlatformHelper.isDLSSAvailable()) desired = UpscaleType.OFF;
             if (desired == UpscaleType.FSR2 && !PlatformHelper.isFSR2Available()) desired = UpscaleType.FSR1;
             if (activeProcessor != null && activeProcessor.getType() == desired) return;
             if (activeProcessor != null) { activeProcessor.destroy(); activeProcessor = null; }
@@ -60,7 +64,7 @@ public class UpscaleManager {
                 case FSR1, FSR2 -> activeProcessor = new FSRProcessor(desired);
                 case OFF -> activeProcessor = null;
             }
-            if (activeProcessor != null) {
+            if (activeProcessor != null && !sodiumLoaded && !irisLoaded) {
                 float scale = resolveScale();
                 int sw = mc.getWindow().getWidth(), sh = mc.getWindow().getHeight();
                 renderTargets.rebuild(sw, sh, scale);
@@ -68,7 +72,7 @@ public class UpscaleManager {
             }
             SuperESRMod.LOGGER.info("[UpscaleManager] processor -> {}", desired);
         } catch (Throwable t) {
-            SuperESRMod.LOGGER.error("[UpscaleManager] reloadProcessor failed: {}", t.toString());
+            SuperESRMod.LOGGER.error("[UpscaleManager] reload failed: {}", t.toString());
             activeProcessor = null;
         }
     }
@@ -78,6 +82,7 @@ public class UpscaleManager {
 
     public boolean onFrameRenderPre() {
         if (!lateInitialized || activeProcessor == null) return false;
+        if (sodiumLoaded || irisLoaded) return false;
         Minecraft mc = Minecraft.getInstance();
         if (mc == null || mc.getWindow() == null) return false;
         try {
@@ -93,12 +98,16 @@ public class UpscaleManager {
 
     public void onFrameRenderPost() {
         if (!lateInitialized || activeProcessor == null) return;
+        if (sodiumLoaded || irisLoaded) return;
         try {
             GLFramebuffer lowRes = renderTargets.getLowResTarget();
+            int[] vp = new int[4];
+            GL11.glGetIntegerv(GL11.GL_VIEWPORT, vp);
             GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, savedFbo);
             if (lowRes == null) return;
             activeProcessor.postWorldRender(lowRes, savedFbo);
             if (frameGenManager != null && frameGenManager.isActive()) frameGenManager.apply(savedFbo);
+            GL11.glViewport(vp[0], vp[1], vp[2], vp[3]);
         } catch (Throwable t) { SuperESRMod.LOGGER.error("[UpscaleManager] post failed: {}", t.toString()); }
     }
 
