@@ -1,5 +1,6 @@
 package com.superesrmod;
 
+import com.superesrmod.config.ModConfig;
 import com.superesrmod.platform.PlatformHelper;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.Minecraft;
@@ -15,6 +16,7 @@ public class SuperESRMod implements ClientModInitializer {
     public void onInitializeClient() {
         LOGGER.info("[SuperESRMod] init, platform: {}", PlatformHelper.detectPlatformSummary());
         CLIENT = Minecraft.getInstance();
+        ModConfig.load();
         LOGGER.info("[SuperESRMod] done.");
     }
 }
