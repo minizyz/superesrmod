@@ -37,5 +37,5 @@ public class UpscaleOptionsScreen extends Screen {
         this.addRenderableWidget(Button.builder(Component.literal("Done"), btn -> this.onClose()).bounds(cx - 100, y + 80, 200, 20).build());
     }
 
-    @Override public void onClose() { this.minecraft.setScreen(parent); }
+    @Override public void onClose() { ModConfig.save(); this.minecraft.setScreen(parent); }
 }
