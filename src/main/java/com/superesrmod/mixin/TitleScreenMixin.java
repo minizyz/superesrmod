@@ -2,6 +2,7 @@ package com.superesrmod.mixin;
 
 import com.superesrmod.gui.UpscaleOptionsScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -11,9 +12,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(TitleScreen.class)
-public abstract class TitleScreenMixin {
+public abstract class TitleScreenMixin extends Screen {
+    private TitleScreenMixin() { super(Component.literal("")); }
+
     @Inject(method = "init", at = @At("TAIL"), require = 0)
-    private void onInit(CallbackInfo ci) {
+    private void onSuperESRInit(CallbackInfo ci) {
         try {
             TitleScreen self = (TitleScreen) (Object) this;
             this.addRenderableWidget(
