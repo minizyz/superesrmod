@@ -3,18 +3,15 @@
   "id": "superesrmod",
   "version": "${version}",
   "name": "SuperESRMod",
-  "description": "NVIDIA DLSS and AMD FSR super-resolution with frame generation. Compatible with Sodium and Iris.",
+  "description": "DLSS/FSR super-resolution and frame generation. Press G or use ModMenu.",
   "authors": ["SuperESRMod Team"],
   "license": "MIT",
   "environment": "client",
   "entrypoints": {
-    "client": [
-      "com.superesrmod.SuperESRMod"
-    ]
+    "client": ["com.superesrmod.SuperESRMod"],
+    "modmenu": ["com.superesrmod.integration.ModMenuIntegration"]
   },
-  "mixins": [
-    "superesrmod.mixins.json"
-  ],
+  "mixins": ["superesrmod.mixins.json"],
   "depends": {
     "fabricloader": ">=0.18.0",
     "minecraft": "~26.1",
@@ -23,6 +20,7 @@
   },
   "suggests": {
     "embeddium": "*",
-    "iris": "*"
+    "iris": "*",
+    "modmenu": "*"
   }
 }
