@@ -2,7 +2,6 @@ package com.superesrmod;
 
 import com.superesrmod.platform.PlatformHelper;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +15,6 @@ public class SuperESRMod implements ClientModInitializer {
     public void onInitializeClient() {
         LOGGER.info("[SuperESRMod] init, platform: {}", PlatformHelper.detectPlatformSummary());
         CLIENT = Minecraft.getInstance();
-        SuperESRKeybind.register();
-        ClientTickEvents.END_CLIENT_TICK.register(client -> SuperESRKeybind.tick());
-        LOGGER.info("[SuperESRMod] done. Press G to open options.");
+        LOGGER.info("[SuperESRMod] done.");
     }
 }
