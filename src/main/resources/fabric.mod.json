@@ -3,13 +3,12 @@
   "id": "superesrmod",
   "version": "${version}",
   "name": "SuperESRMod",
-  "description": "DLSS/FSR super-resolution and frame generation. Press G or use ModMenu.",
+  "description": "DLSS/FSR super-resolution and frame generation. Press G to open options.",
   "authors": ["SuperESRMod Team"],
   "license": "MIT",
   "environment": "client",
   "entrypoints": {
-    "client": ["com.superesrmod.SuperESRMod"],
-    "modmenu": ["com.superesrmod.integration.ModMenuIntegration"]
+    "client": ["com.superesrmod.SuperESRMod"]
   },
   "mixins": ["superesrmod.mixins.json"],
   "depends": {
@@ -20,7 +19,6 @@
   },
   "suggests": {
     "embeddium": "*",
-    "iris": "*",
-    "modmenu": "*"
+    "iris": "*"
   }
 }
