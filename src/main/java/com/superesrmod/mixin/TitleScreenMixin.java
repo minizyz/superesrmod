@@ -15,11 +15,11 @@ public abstract class TitleScreenMixin {
     @Inject(method = "init", at = @At("TAIL"), require = 0)
     private void onInit(CallbackInfo ci) {
         try {
-            TitleScreen screen = (TitleScreen) (Object) this;
-            screen.addRenderableWidget(
+            TitleScreen self = (TitleScreen) (Object) this;
+            this.addRenderableWidget(
                 Button.builder(Component.literal("SuperESR"), btn -> {
-                    Minecraft.getInstance().setScreen(new UpscaleOptionsScreen(screen));
-                }).bounds(screen.width - 110, screen.height - 30, 100, 20).build()
+                    Minecraft.getInstance().setScreen(new UpscaleOptionsScreen(self));
+                }).bounds(self.width - 110, self.height - 30, 100, 20).build()
             );
         } catch (Throwable ignored) {}
     }
