@@ -5,10 +5,11 @@
   "mixins": [],
   "client": [
     "GameRendererMixin",
+    "TitleScreenMixin",
     "SodiumCompatMixin",
     "IrisCompatMixin"
   ],
   "injectors": {
-    "defaultRequire": 1
+    "defaultRequire": 0
   }
 }
