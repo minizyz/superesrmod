@@ -3,7 +3,7 @@
   "id": "superesrmod",
   "version": "${version}",
   "name": "SuperESRMod",
-  "description": "DLSS/FSR super-resolution and frame generation. Press G to open options.",
+  "description": "DLSS/FSR super-resolution and frame generation.",
   "authors": ["SuperESRMod Team"],
   "license": "MIT",
   "environment": "client",
